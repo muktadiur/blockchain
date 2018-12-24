@@ -1,3 +1,4 @@
+import requests
 from urllib.parse import urlparse
 from block import Block
 
@@ -10,6 +11,10 @@ class Blockchain():
         self.blocks.append(genesis_block)
     
     @property
+    def to_json(self):
+        return [block.to_json for block in self.blocks]
+
+    @property
     def last_block(self):
         return self.blocks[-1]
 
@@ -20,8 +25,8 @@ class Blockchain():
         last_block = self.last_block
         nonce = self.proof_of_work(last_block)
         block = Block(
-            index = len(self.blocks) + 1,
-            prev_hash = last_block.hash(),
+            index = len(self.blocks),
+            prev_hash = last_block.hash,
             nonce = nonce,
             transactions=self.transactions
         )
@@ -36,17 +41,15 @@ class Blockchain():
             'amount': amount,
         })
 
-        return self.last_block.index + 1
+        return len(self.blocks)
 
     def proof_of_work(self, last_block):
-        index = 0
-        guess_hash = last_block.guess_hash(index)
+        nonce = 0
+        guess_hash = last_block.guess_hash(nonce)
         while guess_hash[:2] != "00":
-            guess_hash = last_block.guess_hash(index)
-            print(guess_hash)
-            index += 1
-        print(f'proof of work: {guess_hash} done')
-        return index
+            nonce += 1
+            guess_hash = last_block.guess_hash(nonce)
+        return nonce
     
     def register_node(self, address):
         parsed_url = urlparse(address)
@@ -59,17 +62,17 @@ class Blockchain():
 
 
     def valid_chain(self, chain):
-        last_block = chain[0]
-        index = 1
-
+        index = 0
+        last_block = Block(**chain[index])
         while index < len(chain):
-            block = chain[index]
-            if block.prev_hash != last_block.hash():
+            index += 1
+            block = Block(**chain[index])
+            if block.prev_hash != last_block.hash:
                 return False
-            guess_hash = last_block.guess_hash(index)
-            if guess_hash[:2] == "00":
-                last_block = block
-                index += 1
+            guess_hash = last_block.guess_hash(block.nonce)
+            if guess_hash[:2] != "00":
+                return False
+            last_block = block
 
         return True
     

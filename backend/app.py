@@ -15,7 +15,7 @@ blockchain = Blockchain()
 def mine():
     block = blockchain.mine_new_block()
     response = {
-        'message': "New Block Forged",
+        'message': "New Block Added",
         'index': block.index,
         'transactions': block.transactions,
         'nonce': block.nonce,
@@ -41,14 +41,8 @@ def new_transaction():
 @app.route('/', methods=['GET'])
 @app.route('/chain', methods=['GET'])
 def full_chain():
-    block_to_json = [{
-        'index': block.index, 
-        'prev_hash': block.prev_hash,
-        'nonce': block.nonce,
-        'transactions': block.transactions
-    } for block in blockchain.blocks]
     response = {
-        'chain': block_to_json,
+        'chain': blockchain.to_json,
         'length': len(blockchain.blocks),
     }
     return jsonify(response), 200
@@ -84,7 +78,7 @@ def consensus():
     else:
         response = {
             'message': 'Our chain is authoritative',
-            'chain': blockchain.blocks
+            'chain': blockchain.to_json
         }
 
     return jsonify(response), 200
@@ -95,7 +89,7 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('-p', '--port', default=5000, type=int, help='listen on a port')
-    parser.add_argument('-d', '--debug', default=True, type=bool, help='debug mode True/False')
+    parser.add_argument('-d', '--debug', default=False, type=bool, help='debug mode True/False')
     args = parser.parse_args()
     port = args.port
     debug = args.debug

@@ -56,3 +56,61 @@
 }
 
 ```
+
+## Register a new node
+
+```
+Run anoter instance of the application on port: 5001
+python app.py -p 5001
+
+```
+
+```curl -X POST -H "Content-Type: application/json" -d '{"nodes": ["http://0.0.0.0:5001/"]}' http://localhost:5000/nodes/register```
+
+```
+{
+  "message": "New nodes have been added",
+  "total_nodes": [
+    "0.0.0.0:5001"
+  ]
+}
+
+```
+
+```
+Check the the chain: http://localhost:5001/chain
+Add some transaction to http://localhost:5001/transactions/new
+```
+
+## Update the chain from blockchain nodes
+
+```curl -X GET http://localhost:5000/nodes/resolve```
+
+```
+{
+    "message": "Our chain was replaced",
+    "new_chain": [
+        {
+            "index": 0,
+            "nonce": 0,
+            "prev_hash": "00000000",
+            "timestamp": 1545682188.972287,
+            "transactions": []
+        },
+        {
+            "index": 1,
+            "nonce": 435,
+            "prev_hash": "800c072babd905002204d24968d71e6150e178f6415b16bfd28d34f57964e5f9",
+            "timestamp": 1545682215.978256,
+            "transactions": [
+                {
+                    "amount": 2,
+                    "recipient": "2",
+                    "sender": "muktadiur"
+                }
+            ]
+        }
+    ]
+}
+
+```
